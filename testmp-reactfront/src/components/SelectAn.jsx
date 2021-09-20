@@ -1,63 +1,77 @@
 import React, { Fragment, useState } from 'react'
 import SelectLi from './SelectLi'
-import axios from 'axios';
 
-const SelectAn = () => {
-    const [region,setRegion]= useState("");
-    const [provincia,setProvincia]= useState("");
-    const [ciudad, setCiudad] = useState("");
-    const [urlprovincia, setUrlprovincia] = useState("");
-    const [urlciudad, setUrlciudad] = useState("");
+const SelectAn = ({locacion}) => {
+    
+    const [region,setRegion]= useState([]);
+    const [provincia,setProvincia]= useState(null);
+    const [ciudad, setCiudad] = useState(null);
     const [calles, setCalles] = useState([]);
 
-   
 
-    const calledata = async (url)=> {
+    const locaciondata = async (url)=> {
     const data= await fetch(url)
-    const xcalles = await data.json()
+    const locaciones = await data.json()
    
-    setCalles(xcalles);
-    console.log(calles);
-    console.log(xcalles);
+    return locaciones
     }
 
-    const handleChangeRegion = (e) =>{
-        setRegion(e.target.value)
-        setUrlprovincia("http://localhost:8000/api/provincias/"+e.target.value) 
+    React.useEffect(() => {
+        setRegion(locacion)
+       
+    }, [locacion])
+
+    const handleChangeRegion = async(e) =>{
+        //setRegion(e.target.value)
+        const xprovincia = await locaciondata("http://localhost:8000/api/provincias/"+e.target.value)
+        
+        setProvincia(xprovincia)
+        document.getElementById('selpro').getElementsByTagName('option')[0].selected = 'selected'
+        document.getElementById('selciu').getElementsByTagName('option')[0].selected = 'selected'
+        setCalles([])
     }
-    const handleChangeProvincia = (e) =>{
-        setProvincia(e.target.value)
-        setUrlciudad("http://localhost:8000/api/ciudades/"+e.target.value) 
+    const handleChangeProvincia = async(e) =>{
+        //setProvincia(e.target.value)
+        const xciudad= await locaciondata("http://localhost:8000/api/ciudades/"+e.target.value)
+        setCiudad(xciudad)
+        document.getElementById('selciu').getElementsByTagName('option')[0].selected = 'selected'
+        setCalles([])
     }
-    const handleChangeCiudad = (e) =>{
-        setCiudad(e.target.value)
-        calledata("http://localhost:8000/api/calles/"+e.target.value)
+    const handleChangeCiudad = async(e) =>{
+        //setCiudad(e.target.value)
+        const xcalle = await locaciondata("http://localhost:8000/api/calles/"+e.target.value)
+        setCalles(xcalle)
     }
 
     return (
         <Fragment>
-            <SelectLi id="selregion" title="region" url="http://localhost:8000/api/regiones" handleChange={(e)=>handleChangeRegion(e)}/>
+             
+            <SelectLi locaciones={region} id="selreg" key="1" title="region"  handleChange={(e)=>handleChangeRegion(e)}/>
 
-            {region &&(
-            <SelectLi id="selprovincia" title="provincia" url={urlprovincia} handleChange={(e)=>handleChangeProvincia(e)}/>
-            )}
+            
+                
+            <SelectLi locaciones={provincia} id="selpro" key="2" title="provincia"  handleChange={(e)=>handleChangeProvincia(e)}/>
+            
 
-            {provincia &&(
-            <SelectLi id="selciudad" title="ciudad" url={urlciudad} handleChange={(e)=>handleChangeCiudad(e)}/>
-            )}
+            
+            <SelectLi locaciones={ciudad} id="selciu" key="3" title="ciudad"  handleChange={(e)=>handleChangeCiudad(e)}/>
+        
             
                 <table>
+                <thead>
                     <tr>
+                    
                     <th>Calles</th>
-                    </tr>
-
+                    </tr></thead>
+                    <tbody>
                     {ciudad &&(calles.map(item => (
-                    <tr>
+                    <tr key={item.id}>
                     <td>{item.nombre}</td>
                     
                     </tr>
                     ))
                     )}
+                    </tbody>
                 </table>
             
 

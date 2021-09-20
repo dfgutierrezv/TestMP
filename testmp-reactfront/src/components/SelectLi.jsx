@@ -1,33 +1,22 @@
 import React from 'react'
+import { OptionComp } from './OptionComp'
 
 
-const SelectLi = (prop) => {
-    
-    const[region,setRegion]=React.useState([]);
-    //const urlt=prop.url;
 
-    React.useEffect(()=>{
-        obtdat()
-    },[])
+const SelectLi = ({locaciones,title,handleChange,id}) => {
+    const [locacion,setLocaciones]= React.useState([]);
 
-    const obtdat = async ()=> {
-    const data= await fetch(prop.url)
-    const regiones = await data.json()
-   
-    setRegion(regiones);
-    }
-    
-   
+    React.useEffect(() => {
+        setLocaciones(locaciones);
+    }, [locaciones])
     
     return (
         <div>
-            <select name="" id=""  defaultValue="0" onChange={prop.handleChange}>
-                <option value="0"  disabled >Seleccione {prop.title}</option>
-                {
-                    region.map(item => (
-                        <option id={item.id} value={item.id}>{item.nombre}</option>
-                    ))
-                }
+            <select  id={id}  defaultValue="0" onChange={handleChange}>
+                <option value="0"  disabled >Seleccione {title}</option>
+                {locacion&&(locacion.map((item) => (
+                    <OptionComp locacion={item} key={item.id}/>
+                )))}
             </select>
         </div>
     )
